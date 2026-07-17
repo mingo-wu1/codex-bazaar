@@ -3,106 +3,72 @@
 A tiny burn-after-read message relay for Codex CLI sessions and other
 terminal-based coding agents.
 
-`codexping` lets two terminal sessions exchange short messages through a
-Cloudflare relay. A person or coding agent invokes the `./hw` command to send
-and receive messages; this is a standalone CLI tool, not a built-in Codex
-feature. There are no accounts, friends lists, databases, or chat histories.
-Messages disappear after they are read.
+## Use with Codex
 
-```text
-./hw 小明在吗？
-在吗？
-在的
-```
-
-See recently active identities before choosing a recipient:
-
-```bash
-./hw 在线
-```
-
-## Quick Start
-
-Clone and install:
+Clone the repository and open the folder in Codex:
 
 ```bash
 git clone https://github.com/mingo-wu1/codex-ping.git
 cd codex-ping
-npm install
 ```
 
-Deploy your own relay:
+Codex automatically discovers the repository skill. Talk naturally—there is no
+command syntax to memorize:
+
+```text
+我叫大明
+看看谁在线
+问小明在不在
+看看有没有新消息
+回复他：在的
+```
+
+The skill translates these requests into the small underlying chat client.
+Python 3 is the only client requirement; `npm install` is not needed for chat.
+
+## Manual fallback
+
+The underlying commands remain available for terminals and other agents:
 
 ```bash
+./hw 大明注册
+./hw 在线
+./hw 小明在吗？
+./hw 收
+./hw 在的
+```
+
+Windows uses the included `hw.cmd` launcher internally. Codex chooses the
+appropriate launcher, so users do not need to type it.
+
+## Deploy your own relay
+
+Deployment requires a Cloudflare account and Node.js 22 or newer:
+
+```bash
+npm install
 npx wrangler login
 npx wrangler deploy
 ```
 
-Use the printed `workers.dev` URL as `BASE` in `codexping.py` if you deploy to a
-different address, or set `CODEX_PING_BASE` without editing the source:
+Use the deployed URL without editing the source:
 
 ```bash
 export CODEX_PING_BASE=https://your-worker.workers.dev
 ```
 
-## Chat
+PowerShell:
 
-Person A:
-
-```bash
-./hw 大明注册
-./hw 小明在吗？
+```powershell
+$env:CODEX_PING_BASE="https://your-worker.workers.dev"
 ```
 
-Person B:
+## Behavior
 
-```bash
-./hw 小明注册
-./hw 收
-./hw 在的
-```
-
-Person A sees:
-
-```text
-在吗？
-在的
-```
-
-If B does not reply within 2 minutes, A sees:
-
-```text
-不在线
-```
-
-After someone talks to you, you can reply without naming them:
-
-```bash
-./hw 在的
-```
-
-## Rules
-
-- `名字注册` sets your local identity and announces you to the relay.
-- `收` reads your inbox. Read messages are deleted.
-- `在线` lists recently active identities.
-- `小明在吗？` sends `在吗？` to 小明 and waits up to 2 minutes.
-- `在的` replies to the last person.
-- The 2-minute wait controls how long the sender waits for an immediate reply;
-  unread messages can remain on the relay for up to 1 hour.
-- This uses a Cloudflare relay and is not direct peer-to-peer communication.
+- An identity is stored locally on each computer.
+- `在线` means recently active, not a guaranteed live connection.
+- Reading burns messages from that recipient's inbox.
+- Availability questions wait up to 2 minutes for a reply.
+- Unread messages can remain on the relay for up to 1 hour.
+- This is a Cloudflare relay, not direct peer-to-peer communication.
 - Messages are not end-to-end encrypted. Do not send secrets.
-
-## Files
-
-- `codexping.py`: tiny chat client
-- `hw`: short launcher
-- `hw.cmd`: Windows launcher
-- `cloudflare-worker.js`: Cloudflare Durable Object relay
-- `wrangler.toml`: deployment config
-
-## Codex Skill
-
-The small skill in `skills/codex-ping` teaches Codex to discover active
-identities and use the existing `./hw` commands. Copy that folder into your
-Codex skills directory to install it.
