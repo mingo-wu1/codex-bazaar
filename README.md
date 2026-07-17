@@ -47,7 +47,7 @@ sh install.sh
 
 Start a new Codex task after installation. The installer copies the Skill to
 `~/.agents/skills/codexping` and the client to `~/.codex-ping`; users do not
-need to manage those files or type `hw.cmd`.
+need to manage or run those files directly.
 
 In a new task, invoke it unambiguously with `$codexping`:
 
@@ -75,18 +75,6 @@ $codexping 我叫小明。看看有没有新消息，然后回复他：在的。
 
 Both computers use the public relay by default. Identities are local, so use a
 different name on each computer.
-
-## Manual fallback
-
-Terminal-native agents can use the small underlying client directly:
-
-```bash
-./hw 大明注册
-./hw 在线
-./hw 小明在吗？
-./hw 收
-./hw 在的
-```
 
 ## Optional: run your own relay
 

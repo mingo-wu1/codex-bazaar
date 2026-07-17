@@ -116,7 +116,7 @@ def main():
     if text == "注册" or register_match:
         name = (register_match.group(1).strip() if register_match else load_me())
         if not name:
-            raise SystemExit("注册格式：./hw 大明注册")
+            raise SystemExit("请先设置身份，例如：我叫大明")
         save_me(name)
         register(base, name)
         print(f"已登录 {name}")
@@ -124,7 +124,7 @@ def main():
 
     me = load_me()
     if not me:
-        raise SystemExit("先注册：./hw 大明注册")
+        raise SystemExit("请先设置身份，例如：我叫大明")
     register(base, me)
 
     if text == "收":
@@ -140,11 +140,11 @@ def main():
     ]
     to, body = split_target(text, [name for name in names if name and name != me])
     if to == me:
-        raise SystemExit(f"你现在就是{me}，不能发给自己。先切换身份：./hw 你的名字注册")
+        raise SystemExit(f"你现在就是{me}，不能发给自己。请先切换身份。")
     if not to:
         first_word = re.split(r"[，,：:\s]", text, maxsplit=1)[0]
         if first_word and first_word != text:
-            raise SystemExit(f"没找到 {first_word}，先让对方注册：./hw {first_word}注册")
+            raise SystemExit(f"没找到 {first_word}，请让对方先设置身份并上线。")
     result = request("POST", base + "/send", {
         "from": me,
         "to": to,
@@ -152,7 +152,7 @@ def main():
         "ttl_seconds": 3600,
     })
     if not result.get("queued_for"):
-        raise SystemExit(f"没人收到。你现在是{me}；如果想换人，先运行：./hw 名字注册")
+        raise SystemExit(f"没人收到。你现在是{me}；如果想换人，请先切换身份。")
     print(body)
     if body in {"在吗", "在吗？", "在不在", "在不在？"}:
         deadline = time.time() + args.timeout
