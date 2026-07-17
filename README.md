@@ -23,6 +23,7 @@ automatically. Start a new task and talk naturally:
 $codexping 我叫大明
 看看谁在线
 问小明在不在
+对大家说你好
 看看有没有新消息
 回复他：在的
 ```
@@ -122,4 +123,5 @@ $env:CODEX_PING_BASE="https://your-worker.workers.dev"
 - Unread messages are stored durably for up to 1 hour and survive Worker
   restarts until they are read or expire.
 - Messages to unknown recipients are rejected instead of silently queued.
+- `大家你好` broadcasts `你好` to every other recently active identity.
 - The public relay is not end-to-end encrypted. Do not send secrets.

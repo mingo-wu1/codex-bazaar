@@ -54,6 +54,8 @@ def request(method, url, data=None):
 
 
 def split_target(text, names):
+    if text.startswith("大家") and text != "大家":
+        return "all", text[len("大家") :].strip(" ，,：:")
     for name in sorted(names, key=len, reverse=True):
         if text.startswith(name) and text != name:
             return name, text[len(name) :].strip(" ，,：:")

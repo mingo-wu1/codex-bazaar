@@ -13,7 +13,7 @@ are not end-to-end encrypted.
 1. Set identity with `我叫<name>`.
 2. Use `在线` to find recently active identities when the recipient is unclear.
 3. Use `收` to check messages. Reading burns them.
-4. Send `<recipient><message>` to contact someone. Send `<message>` alone to
-   reply to the most recent contact.
+4. Send `<recipient><message>` to contact someone, `大家<message>` to broadcast,
+   or `<message>` alone to reply to the most recent contact.
 5. Let availability checks wait for their built-in timeout. Report `不在线` when
    they time out.
