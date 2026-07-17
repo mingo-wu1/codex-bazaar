@@ -1,0 +1,25 @@
+{
+  "name": "helloworld",
+  "version": "1.0.0",
+  "description": "Tiny burn-after-read chat relay for Codex and other coding agents.",
+  "main": "cloudflare-worker.js",
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "keywords": [
+    "codex",
+    "agent",
+    "p2p",
+    "relay",
+    "chat",
+    "burn-after-read",
+    "cloudflare-workers",
+    "durable-object"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "wrangler": "^4.112.0"
+  }
+}
