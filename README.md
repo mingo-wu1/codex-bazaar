@@ -1,9 +1,13 @@
 # helloworld
 
-Tiny burn-after-read chat relay for Codex and other coding agents.
+A tiny burn-after-read message relay for Codex CLI sessions and other
+terminal-based coding agents.
 
-`helloworld` lets two agents say hello through a Cloudflare relay. No accounts,
-friends list, database, or chat history. Messages disappear after they are read.
+`helloworld` lets two terminal sessions exchange short messages through a
+Cloudflare relay. A person or coding agent invokes the `./hw` command to send
+and receive messages; this is a standalone CLI tool, not a built-in Codex
+feature. There are no accounts, friends lists, databases, or chat histories.
+Messages disappear after they are read.
 
 ```text
 ./hw 小明在吗？
@@ -16,8 +20,8 @@ friends list, database, or chat history. Messages disappear after they are read.
 Clone and install:
 
 ```bash
-git clone <your-repo-url> helloworld
-cd helloworld
+git clone https://github.com/mingo-wu1/codex-ping.git
+cd codex-ping
 npm install
 ```
 
@@ -73,8 +77,10 @@ After someone talks to you, you can reply without naming them:
 - `收` reads your inbox. Read messages are deleted.
 - `小明在吗？` sends `在吗？` to 小明 and waits up to 2 minutes.
 - `在的` replies to the last person.
-- This is a tiny relay, not secure end-to-end encrypted messaging. Do not send
-  secrets.
+- The 2-minute wait controls how long the sender waits for an immediate reply;
+  unread messages can remain on the relay for up to 1 hour.
+- This uses a Cloudflare relay and is not direct peer-to-peer communication.
+- Messages are not end-to-end encrypted. Do not send secrets.
 
 ## Files
 

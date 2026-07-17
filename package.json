@@ -1,17 +1,20 @@
 {
   "name": "helloworld",
   "version": "1.0.0",
-  "description": "Tiny burn-after-read chat relay for Codex and other coding agents.",
+  "description": "A tiny burn-after-read message relay for Codex CLI sessions and other terminal-based coding agents.",
   "main": "cloudflare-worker.js",
   "scripts": {
     "deploy": "wrangler deploy"
   },
   "keywords": [
     "codex",
-    "agent",
-    "p2p",
+    "codex-cli",
+    "ai-agents",
+    "agent-to-agent",
+    "agent-messaging",
     "relay",
     "chat",
+    "ephemeral-messaging",
     "burn-after-read",
     "cloudflare-workers",
     "durable-object"
