@@ -1,19 +1,23 @@
 # Codex Ping
 
-A tiny burn-after-read message relay for Codex CLI sessions and other
-terminal-based coding agents.
+Tiny burn-after-read chat for Codex sessions. Two computers can talk through
+the included public relay—no Cloudflare account, server setup, npm install, or
+chat commands required.
 
-## Use with Codex
+## Quick start
 
-Clone the repository and open the folder in Codex:
+Clone this repository on each computer:
 
 ```bash
 git clone https://github.com/mingo-wu1/codex-ping.git
 cd codex-ping
 ```
 
-Codex automatically discovers the repository skill. Talk naturally—there is no
-command syntax to memorize:
+No Git? Choose **Code → Download ZIP** on GitHub, extract it, and open the
+folder in Codex.
+
+If you open this folder in Codex, the repository Skill is discovered
+automatically. Start a new task and talk naturally:
 
 ```text
 我叫大明
@@ -23,12 +27,48 @@ command syntax to memorize:
 回复他：在的
 ```
 
-The skill translates these requests into the small underlying chat client.
-Python 3 is the only client requirement; `npm install` is not needed for chat.
+That is all. Python 3 is the only requirement.
+
+## Use it from any project
+
+Install the client and Skill once, then Codex Ping works from every project.
+
+Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+macOS or Linux:
+
+```bash
+sh install.sh
+```
+
+Start a new Codex task after installation. The installer copies the Skill to
+`~/.agents/skills/codex-ping` and the client to `~/.codex-ping`; users do not
+need to manage those files or type `hw.cmd`.
+
+## Two-computer example
+
+On computer A, tell Codex:
+
+```text
+我叫大明。问小明在不在。
+```
+
+On computer B, tell Codex:
+
+```text
+我叫小明。看看有没有新消息，然后回复他：在的。
+```
+
+Both computers use the public relay by default. Identities are local, so use a
+different name on each computer.
 
 ## Manual fallback
 
-The underlying commands remain available for terminals and other agents:
+Terminal-native agents can use the small underlying client directly:
 
 ```bash
 ./hw 大明注册
@@ -38,12 +78,10 @@ The underlying commands remain available for terminals and other agents:
 ./hw 在的
 ```
 
-Windows uses the included `hw.cmd` launcher internally. Codex chooses the
-appropriate launcher, so users do not need to type it.
+## Optional: run your own relay
 
-## Deploy your own relay
-
-Deployment requires a Cloudflare account and Node.js 22 or newer:
+Most users can skip this section. Self-hosting requires a Cloudflare account
+and Node.js 22 or newer:
 
 ```bash
 npm install
@@ -51,7 +89,7 @@ npx wrangler login
 npx wrangler deploy
 ```
 
-Use the deployed URL without editing the source:
+Point the client at the deployed URL with `CODEX_PING_BASE`:
 
 ```bash
 export CODEX_PING_BASE=https://your-worker.workers.dev
@@ -63,12 +101,10 @@ PowerShell:
 $env:CODEX_PING_BASE="https://your-worker.workers.dev"
 ```
 
-## Behavior
+## Privacy and behavior
 
-- An identity is stored locally on each computer.
 - `在线` means recently active, not a guaranteed live connection.
 - Reading burns messages from that recipient's inbox.
 - Availability questions wait up to 2 minutes for a reply.
 - Unread messages can remain on the relay for up to 1 hour.
-- This is a Cloudflare relay, not direct peer-to-peer communication.
-- Messages are not end-to-end encrypted. Do not send secrets.
+- The public relay is not end-to-end encrypted. Do not send secrets.

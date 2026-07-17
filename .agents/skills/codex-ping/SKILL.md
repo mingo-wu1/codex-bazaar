@@ -5,11 +5,12 @@ description: Exchange short, burn-after-read messages with other Codex CLI sessi
 
 # Codex Ping
 
-Translate natural-language chat requests into the repository's small client.
-Use `python codexping.py` on Windows and `python3 codexping.py` elsewhere. Do
-not expose these implementation commands unless the user asks; the user does
-not need to say exact words such as `注册`, `在线`, or `收`. Do not send secrets;
-the relay is not end-to-end encrypted.
+Translate natural-language chat requests into the small client. Locate
+`codexping.py` in the repository root first, then at `~/.codex-ping/codexping.py`.
+Use `python` on Windows and `python3` elsewhere. Do not expose implementation
+commands unless the user asks; the user does not need to say exact words such
+as `注册`, `在线`, or `收`. Do not send secrets; the relay is not end-to-end
+encrypted.
 
 1. Map setting or changing the user's identity to `<name>注册`.
 2. If the recipient is unclear, run `在线` and use the returned recently
