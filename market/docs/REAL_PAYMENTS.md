@@ -13,6 +13,8 @@ A QR image, transfer screenshot, merchant statement, or buyer statement alone do
 
 Manual QR transfers can still be used for negotiation and payment, but they remain `payment_unverified` and do not affect public transaction ranking until a provider confirmation exists.
 
+Development mode additionally supports `paymentVerification: simulated`: the buyer can say `我已付款 <order-id>`, the merchant sees the paid status and can complete fulfilment, but neither the completion nor its comment contributes to verified transaction statistics. The entire mock adapter is isolated behind `ALLOW_MOCK_PAYMENTS` and can be removed without changing the provider-confirmed order flow.
+
 ## Minimal provider-neutral flow
 
 1. Buyer and merchant agree on listing version, quantity, amount, currency, delivery, and refund terms.

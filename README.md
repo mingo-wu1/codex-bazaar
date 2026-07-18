@@ -52,6 +52,8 @@ The blackboard stores small signed events and proofs, not merchant-hosted produc
 
 Checkout happens on the payment provider's page or provider-generated QR surface. Screenshots and personal collection QR codes do not prove payment. Only a signed webhook or successful official merchant-API query creates a verified `ORDER_PAID` record. See [market/docs/REAL_PAYMENTS.md](market/docs/REAL_PAYMENTS.md).
 
+For development without a merchant API, the buyer can use the generated mock QR and say `我已付款 <order-id>`. The merchant then sees `paid (simulated)` and can finish the order. Simulated trades are deliberately excluded from verified ranking and can be removed with the mock adapter later.
+
 ## Development
 
 Ping relay:

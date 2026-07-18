@@ -27,11 +27,11 @@ npm run test:commerce
 ```text
 merchant registration → product image upload → listing approval → buyer search
 → exact order preview → explicit order confirmation → checkout QR encode/decode
-→ development payment confirmation → merchant acceptance → fulfilment
+→ buyer says “我已付款” → merchant sees paid (simulated) → merchant acceptance → fulfilment
 → buyer completion → verified-purchase comment → completed-order ranking
 ```
 
-The QR in this test is deliberately non-payable and cannot move real money. Production payment requirements are documented in [docs/REAL_PAYMENTS.md](docs/REAL_PAYMENTS.md).
+The QR in this test is deliberately non-payable and cannot move real money. The order can still complete, but it is marked simulated and excluded from verified ranking. Production payment requirements are documented in [docs/REAL_PAYMENTS.md](docs/REAL_PAYMENTS.md).
 
 ## Documentation
 

@@ -181,7 +181,7 @@ def main(argv):
         if not orders:
             print("暂无订单。")
         else:
-            print("\n".join(f"{item['id']}｜{item['title']} × {item['quantity']}｜{item['status']}｜{money(item['totalMinor'], item['currency'])}" for item in orders))
+            print("\n".join(f"{item['id']}｜{item['title']} × {item['quantity']}｜{item['status']} ({item.get('paymentVerification') or '未付款'})｜{money(item['totalMinor'], item['currency'])}" for item in orders))
         return 0
 
     merchant_action = re.fullmatch(r"(接单|已发货|退款)\s+([^\s]+)", text)
@@ -235,9 +235,30 @@ def main(argv):
             CONFIG_DIR.mkdir(parents=True, exist_ok=True)
             qr_path = CONFIG_DIR / f"{order_id}-checkout.svg"
             qr_path.write_text(result["checkoutQrSvg"], encoding="utf-8")
+        config.setdefault("paymentSessions", {})[order_id] = {
+            "provider": result.get("provider"),
+            "checkoutUrl": result.get("checkoutUrl"),
+        }
+        save_config(config)
         provider_note = "开发测试二维码，不会扣真实资金。" if result.get("provider") == "mock" else f"支付提供商：{result.get('provider', 'external')}。"
         qr_note = f"\n二维码：{qr_path}" if qr_path else ""
         print(f"请核对后在支付提供商页面完成付款：\n{result['checkoutUrl']}{qr_note}\n{provider_note}")
+        return 0
+
+    paid_claim = re.fullmatch(r"(?:我已付款|已付款)\s+([^\s]+)", text)
+    if paid_claim:
+        order_id = paid_claim.group(1)
+        order_token = config.get("orders", {}).get(order_id)
+        session = config.get("paymentSessions", {}).get(order_id)
+        if not order_token or not session:
+            raise RuntimeError(f"请先说：付款 {order_id}")
+        if session.get("provider") != "mock":
+            print("已记录你的提示；真实付款仍需等待支付平台官方回调确认。")
+            return 0
+        checkout = urllib.parse.urlparse(session["checkoutUrl"])
+        secret = urllib.parse.parse_qs(checkout.query).get("secret", [""])[0]
+        result = request(config, "POST", f"/api/mock-pay/{urllib.parse.quote(order_id)}", {"secret": secret})["order"]
+        print(f"已记录模拟付款，订单状态：{result['status']}（simulated）。商家现在可以看到并接单。")
         return 0
 
     order_status = re.fullmatch(r"订单\s+([^\s]+)", text)
@@ -245,7 +266,7 @@ def main(argv):
         order_id = order_status.group(1)
         order_token = config.get("orders", {}).get(order_id)
         result = request(config, "GET", f"/api/orders/{urllib.parse.quote(order_id)}", token=order_token)["order"]
-        print(f"订单 {order_id}\n状态：{result['status']}\n金额：{money(result['totalMinor'], result['currency'])}")
+        print(f"订单 {order_id}\n状态：{result['status']}\n付款验证：{result.get('paymentVerification') or '未付款'}\n金额：{money(result['totalMinor'], result['currency'])}")
         return 0
 
     complete = re.fullmatch(r"确认收货\s+([^\s]+)", text)
@@ -274,7 +295,7 @@ def main(argv):
             "authorId": config.get("buyerId", ""),
             "body": comment.group(2),
         }, order_token)["comment"]
-        label = "已成交评论" if result["verifiedPurchase"] else "未验证讨论"
+        label = "已验证成交评论" if result["verifiedPurchase"] else "模拟成交评论" if result.get("simulatedPurchase") else "未验证讨论"
         print(f"评论已发布（{label}）")
         return 0
 

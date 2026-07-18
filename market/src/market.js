@@ -179,6 +179,7 @@ export class MarketBoard {
       ...preview,
       status: "awaiting_payment",
       paymentReference: null,
+      paymentVerification: null,
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
@@ -192,9 +193,21 @@ export class MarketBoard {
     if (order.status !== "awaiting_payment") throw new Error("order is not awaiting payment");
     order.status = "paid";
     order.paymentReference = paymentReference;
+    order.paymentVerification = "provider";
     order.updatedAt = nowIso();
     const stats = this.tradeStats.get(order.listingId);
     stats.paidOrders += 1;
+    return structuredClone(order);
+  }
+
+  recordSimulatedPayment({ orderId, paymentReference, simulationAuthorized }) {
+    if (simulationAuthorized !== true) throw new Error("simulated payment is not enabled");
+    const order = this.#order(orderId);
+    if (order.status !== "awaiting_payment") throw new Error("order is not awaiting payment");
+    order.status = "paid";
+    order.paymentReference = paymentReference;
+    order.paymentVerification = "simulated";
+    order.updatedAt = nowIso();
     return structuredClone(order);
   }
 
@@ -212,7 +225,8 @@ export class MarketBoard {
     order.status = status;
     order.updatedAt = nowIso();
     const stats = this.tradeStats.get(order.listingId);
-    if (status === "completed") {
+    const verifiedTrade = order.paymentVerification === "provider";
+    if (status === "completed" && verifiedTrade) {
       stats.completedOrders += 1;
       if (fulfilledOnTime) stats.fulfilledOnTime += 1;
       const previous = Array.from(this.orders.values()).filter(
@@ -224,8 +238,8 @@ export class MarketBoard {
       );
       if (previous.length === 1) stats.repeatBuyers += 1;
     }
-    if (status === "refunded") stats.refunds += 1;
-    if (status === "disputed") stats.disputes += 1;
+    if (status === "refunded" && verifiedTrade) stats.refunds += 1;
+    if (status === "disputed" && verifiedTrade) stats.disputes += 1;
     return structuredClone(order);
   }
 
@@ -233,12 +247,15 @@ export class MarketBoard {
     this.#listing(listingId);
     if (!authorId?.trim() || !body?.trim()) throw new Error("authorId and body are required");
     let verifiedPurchase = false;
+    let simulatedPurchase = false;
     if (orderId) {
       const order = this.#order(orderId);
       if (order.listingId !== listingId || order.buyerId !== authorId) {
         throw new Error("order does not belong to this buyer and listing");
       }
-      verifiedPurchase = ["paid", "accepted", "fulfilled", "completed", "refunded", "disputed"].includes(order.status);
+      const transacted = ["paid", "accepted", "fulfilled", "completed", "refunded", "disputed"].includes(order.status);
+      verifiedPurchase = transacted && order.paymentVerification === "provider";
+      simulatedPurchase = transacted && order.paymentVerification === "simulated";
     }
     const comment = {
       id: makeId("cmt"),
@@ -247,6 +264,7 @@ export class MarketBoard {
       authorId: authorId.trim(),
       body: body.trim(),
       verifiedPurchase,
+      simulatedPurchase,
       createdAt: nowIso(),
     };
     const comments = this.comments.get(listingId) || [];

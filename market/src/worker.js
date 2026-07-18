@@ -395,10 +395,10 @@ export class MarketRoom extends DurableObject {
         if (!Number.isFinite(expiresAt) || expiresAt < Math.floor(Date.now() / 1000) || suppliedSignature !== expectedSignature) {
           throw new Error("invalid or expired payment session");
         }
-        const order = board.recordVerifiedPayment({
+        const order = board.recordSimulatedPayment({
           orderId: payMatch[1],
           paymentReference: `mock_${payMatch[1]}`,
-          webhookVerified: true,
+          simulationAuthorized: String(this.env.ALLOW_MOCK_PAYMENTS || "false") === "true",
         });
         await this.save(board);
         return json({ order });

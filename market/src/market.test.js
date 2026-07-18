@@ -87,4 +87,21 @@ test("an order requires buyer confirmation and a verified webhook to become paid
     webhookVerified: true,
   });
   assert.equal(paid.status, "paid");
+  assert.equal(paid.paymentVerification, "provider");
+});
+
+test("simulated payment completes the workflow without polluting verified ranking", () => {
+  const board = new MarketBoard();
+  const listing = activeToothbrush(board);
+  const order = board.createOrder({ listingId: listing.id, buyerId: "Luffy", buyerConfirmed: true });
+  const paid = board.recordSimulatedPayment({ orderId: order.id, paymentReference: "mock_123", simulationAuthorized: true });
+  assert.equal(paid.status, "paid");
+  assert.equal(paid.paymentVerification, "simulated");
+  board.updateOrderStatus({ orderId: order.id, status: "accepted" });
+  board.updateOrderStatus({ orderId: order.id, status: "fulfilled" });
+  board.updateOrderStatus({ orderId: order.id, status: "completed", fulfilledOnTime: true });
+  const comment = board.addComment({ listingId: listing.id, orderId: order.id, authorId: "Luffy", body: "Test trade" });
+  assert.equal(comment.verifiedPurchase, false);
+  assert.equal(comment.simulatedPurchase, true);
+  assert.equal(board.getPublicListing(listing.id).ranking.explanation.completedOrders, 0);
 });
