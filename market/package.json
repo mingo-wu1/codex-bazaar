@@ -1,0 +1,20 @@
+{
+  "name": "codex-market-board",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A transparent, Codex-native transaction board ranked by verified trade outcomes.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "wrangler deploy --dry-run",
+    "test:cli": "node scripts/cli-install-smoke.mjs",
+    "test:worker-cli": "node scripts/worker-cli-smoke.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.112.0"
+  },
+  "author": "Mingo",
+  "license": "MIT"
+}
