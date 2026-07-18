@@ -1,5 +1,13 @@
 # Codex Market Board
 
+> v0.2 experimental protocol mode: merchants keep product details and images on their own machines, publish small Ed25519-signed listing events, and buyers verify the event hash chain plus independent compliance attestations before fetching details on demand. See [the decentralized protocol](docs/DECENTRALIZED_PROTOCOL.md) and [the PRD](docs/PRD.md).
+
+Run the real two-process merchant/buyer check:
+
+```bash
+npm run test:two-codex
+```
+
 一个面向 Codex/终端代理的公开交易索引。网页负责公开、可审计的数据；搜索、比较、询价和下单主要发生在 Codex 对话中。
 
 当前仓库包含一个可以端到端运行的 MVP：
