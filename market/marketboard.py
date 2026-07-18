@@ -30,7 +30,7 @@ def save_config(config):
 
 
 def request(config, method, path, data=None, token=None):
-    headers = {"accept": "application/json"}
+    headers = {"accept": "application/json", "user-agent": "Codex-Bazaar/0.1"}
     payload = None
     if data is not None:
         headers["content-type"] = "application/json"
@@ -50,7 +50,7 @@ def request(config, method, path, data=None, token=None):
 
 
 def upload(config, path, content_type, content, token_value):
-    headers = {"content-type": content_type, "authorization": f"Bearer {token_value}", "accept": "application/json"}
+    headers = {"content-type": content_type, "authorization": f"Bearer {token_value}", "accept": "application/json", "user-agent": "Codex-Bazaar/0.1"}
     req = urllib.request.Request(config["server"].rstrip("/") + path, data=content, headers=headers, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=30) as response:
@@ -124,7 +124,8 @@ def main(argv):
         })
         config["merchant"] = {"id": result["merchant"]["id"], "token": result["merchantToken"]}
         save_config(config)
-        print(f"商家已登记：{result['merchant']['displayName']}（等待验证）")
+        merchant_status = result["merchant"]["status"]
+        print(f"商家已登记：{result['merchant']['displayName']}（{merchant_status}）")
         return 0
 
     upload_image = re.fullmatch(r"上传图\s+(.+)", text)
@@ -170,7 +171,7 @@ def main(argv):
         config["pendingImages"] = []
         save_config(config)
         item = result["listing"]
-        print(f"商品已提交审核：{item['title']}｜{money(item['priceMinor'], item['currency'])}｜{item['id']}")
+        print(f"商品已发布：{item['title']}｜{money(item['priceMinor'], item['currency'])}｜{item['id']}｜{item['compliance']['status']}")
         return 0
 
     if text == "商家订单":
