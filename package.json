@@ -9,8 +9,6 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "check": "wrangler deploy --dry-run",
-    "test:two-codex": "node scripts/two-codex-smoke.mjs",
-    "test:realistic": "node scripts/realistic-market-smoke.mjs",
     "test:cli": "node scripts/cli-install-smoke.mjs",
     "test:worker-cli": "node scripts/worker-cli-smoke.mjs"
   },

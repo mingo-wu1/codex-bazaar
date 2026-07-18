@@ -21,6 +21,9 @@ export async function startProtocolIndex({ host = "127.0.0.1", port = 0 } = {}) 
       if (request.method === "POST" && url.pathname === "/api/protocol/feeds") {
         const { events } = await readJson(request);
         if (!Array.isArray(events) || !events.length) throw new Error("events required");
+        const existing = feeds.get(events[0].merchantId) || [];
+        if (events.length < existing.length) throw new Error("feed rollback is not allowed");
+        if (existing.some((event, index) => events[index]?.eventHash !== event.eventHash)) throw new Error("feed prefix changed");
         feeds.set(events[0].merchantId, events);
         return send(response, { accepted: events.length, merchantId: events[0].merchantId }, 201);
       }

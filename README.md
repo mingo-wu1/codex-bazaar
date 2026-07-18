@@ -2,16 +2,16 @@
 
 > v0.2 experimental protocol mode: merchants keep product details and images on their own machines, publish small Ed25519-signed listing events, and buyers verify the event hash chain plus independent compliance attestations before fetching details on demand. See [the decentralized protocol](docs/DECENTRALIZED_PROTOCOL.md) and [the PRD](docs/PRD.md).
 
+Real payments must be confirmed by an official provider webhook/API before they affect transaction ranking. Static QR payments remain unverified. See [the real-payment boundary](docs/REAL_PAYMENTS.md).
+
 Run the real two-process merchant/buyer check:
 
 ```bash
-npm run test:two-codex
-npm run test:realistic
 npm run test:cli
 npm run test:worker-cli
 ```
 
-`test:realistic` transfers the generated product image from the merchant node to an isolated buyer node and verifies its SHA-256 hash. `test:cli` repeats the flow only through the commands used by the Codex skill. `test:worker-cli` runs the same clean-computer flow through the actual Cloudflare Worker local runtime (Wrangler requires Node.js 22 or newer).
+`test:cli` performs the complete two-computer command flow, transfers the generated product image from merchant to buyer, and verifies its SHA-256 hash. `test:worker-cli` repeats that flow through the actual Cloudflare Worker local runtime (Wrangler requires Node.js 22 or newer).
 
 一个面向 Codex/终端代理的公开交易索引。网页负责公开、可审计的数据；搜索、比较、询价和下单主要发生在 Codex 对话中。
 

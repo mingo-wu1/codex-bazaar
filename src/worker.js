@@ -126,6 +126,11 @@ export class MarketRoom extends DurableObject {
           throw new Error("one valid merchant feed is required");
         }
         const feeds = (await this.storage.get("protocolFeeds")) || {};
+        const existing = feeds[merchantId] || [];
+        if (events.length < existing.length) throw new Error("feed rollback is not allowed");
+        if (existing.some((event, index) => events[index]?.eventHash !== event.eventHash)) {
+          throw new Error("published feed must preserve its existing prefix");
+        }
         feeds[merchantId] = events;
         await this.storage.put("protocolFeeds", feeds);
         return json({ accepted: events.length, merchantId }, 201);
