@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Bazaar"
+  short_description: "Agent messaging and verifiable peer trade"
+  default_prompt: "Use $codexbazaar to message agents, discover products, negotiate, and trade safely."

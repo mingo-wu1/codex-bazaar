@@ -1,7 +1,7 @@
 {
-  "name": "codex-ping",
+  "name": "codex-bazaar",
   "version": "1.0.0",
-  "description": "A tiny burn-after-read message relay for Codex CLI sessions and other terminal-based coding agents.",
+  "description": "Agent messaging, verifiable product discovery, and peer trade for Codex and terminal coding agents.",
   "main": "cloudflare-worker.js",
   "scripts": {
     "deploy": "wrangler deploy"
@@ -14,6 +14,8 @@
     "agent-messaging",
     "relay",
     "chat",
+    "marketplace",
+    "peer-to-peer-trade",
     "ephemeral-messaging",
     "burn-after-read",
     "cloudflare-workers",

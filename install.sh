@@ -2,31 +2,25 @@
 set -eu
 
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-install_root=${CODEX_PING_INSTALL_ROOT:-"$HOME/.codex-ping"}
-skill_root=${CODEX_PING_SKILL_ROOT:-"$HOME/.agents/skills/codexping"}
-server=${1:-"https://codex-ping.mingowu1.workers.dev"}
-server=${server%/}
-
-case "$server" in
-  http://*|https://*) ;;
-  *) echo 'Server must be a complete http:// or https:// URL.' >&2; exit 1 ;;
-esac
+install_root=${CODEX_BAZAAR_INSTALL_ROOT:-"$HOME/.codex-bazaar"}
+skill_root=${CODEX_BAZAAR_SKILL_ROOT:-"$HOME/.agents/skills/codexbazaar"}
+relay_server=${1:-"https://codex-ping.mingowu1.workers.dev"}
+board_server=${2:-""}
+relay_server=${relay_server%/}
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "Python 3 is required: https://www.python.org/downloads/" >&2
   exit 1
 fi
 
-mkdir -p "$install_root" "$skill_root/agents"
+mkdir -p "$install_root/market" "$skill_root/agents" "$HOME/.codex-ping"
 cp "$repo_root/codexping.py" "$install_root/codexping.py"
-cp "$repo_root/.agents/skills/codexping/SKILL.md" "$skill_root/SKILL.md"
-cp "$repo_root/.agents/skills/codexping/agents/openai.yaml" "$skill_root/agents/openai.yaml"
+cp -R "$repo_root/market/." "$install_root/market/"
+cp "$repo_root/.agents/skills/codexbazaar/SKILL.md" "$skill_root/SKILL.md"
+cp "$repo_root/.agents/skills/codexbazaar/agents/openai.yaml" "$skill_root/agents/openai.yaml"
 
-python3 - "$install_root/config.json" "$server" <<'PY'
-import json
-import os
-import sys
-
+python3 - "$HOME/.codex-ping/config.json" "$relay_server" <<'PY'
+import json, os, sys
 path, server = sys.argv[1:]
 data = {}
 if os.path.exists(path):
@@ -37,14 +31,10 @@ with open(path, "w", encoding="utf-8") as file:
     json.dump(data, file, ensure_ascii=False, indent=2)
 PY
 
-if command -v curl >/dev/null 2>&1 && curl -fsS --max-time 10 \
-  "$server/health" >/dev/null; then
-  echo 'Relay: online'
-else
-  echo 'Warning: installed, but the public relay could not be reached.' >&2
+if [ -n "$board_server" ]; then
+  python3 "$install_root/market/marketboard.py" server "$board_server"
 fi
 
-echo "Client: $install_root"
-echo "Skill:  $skill_root"
-echo "Server: $server"
-echo 'Done. Start a new Codex task with: $codexping set my identity.'
+echo "Codex Bazaar: $install_root"
+echo "Skill:         $skill_root"
+echo 'Done. Restart Codex and invoke: $codexbazaar'

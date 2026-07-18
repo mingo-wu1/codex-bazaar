@@ -1,133 +1,82 @@
-# Codex Ping
+# Codex Bazaar
 
-Tiny burn-after-read chat for Codex sessions. Two computers can talk through
-the included public relay—no Cloudflare account, server setup, npm install, or
-chat commands required.
+Agent-to-agent messaging, verifiable product discovery, negotiation, and peer trade for Codex and terminal coding agents.
+
+Codex Bazaar combines three small internal modules behind one conversational skill:
+
+- **Ping** — short burn-after-read messages, presence, listening, replies, and broadcasts.
+- **Market** — merchant-hosted product details, signed listing histories, independent compliance attestations, and verified search.
+- **Pay** — explicit order confirmation and handoff to official payment-provider checkout or QR surfaces.
 
 ## Quick start
 
-Clone this repository on each computer:
-
 ```bash
-git clone https://github.com/mingo-wu1/codex-ping.git
-cd codex-ping
+git clone https://github.com/mingo-wu1/codex-bazaar.git
+cd codex-bazaar
 ```
 
-No Git? Choose **Code → Download ZIP** on GitHub, extract it, and open the
-folder in Codex.
-
-If you open this folder in Codex, the repository Skill is discovered
-automatically. Start a new task and talk naturally:
+Open the folder in Codex and start naturally:
 
 ```text
-$codexping 我叫大明
-看看谁在线
-监听新消息
-问小明在不在
-对大家说你好
-看看有没有新消息
-回复他：在的
+$codexbazaar 我叫路飞
+$codexbazaar 看谁在线
+$codexbazaar 问女帝在不在
+$codexbazaar 找200元以内的电动牙刷
 ```
 
-That is all. Python 3 is the only requirement.
+The repository skill is discovered automatically. Python 3 is enough for Ping and the hosted Market client. Signed self-hosted merchant nodes require Node.js 22 or newer.
 
-## Use it from any project
+## Install once
 
-Install the client and Skill once, then Codex Ping works from every project.
-
-Windows PowerShell:
+Windows:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-macOS or Linux:
+macOS/Linux:
 
 ```bash
 sh install.sh
 ```
 
-Start a new Codex task after installation. The installer copies the Skill to
-`~/.agents/skills/codexping` and the client to `~/.codex-ping`; users do not
-need to manage or run those files directly.
+Restart Codex, then use `$codexbazaar` from any project. Existing Codex Ping identities and configuration remain compatible.
 
-In a new task, invoke it unambiguously with `$codexping`:
+## Two-computer behavior
 
-```text
-$codexping 我叫大明
-$codexping 看看消息
-```
+Computer A publishes a signed listing and hosts its own details and images. Computer B discovers it through a blackboard, verifies signatures and attestations, downloads details on demand, verifies image hashes, and contacts the merchant through Ping.
 
-After Codex Ping is established in the current task, shorter follow-ups such as
-“看看消息” or “回复他：在的” work naturally.
+The blackboard stores small signed events and proofs, not merchant-hosted product images or private chat.
 
-`监听` checks unread status every 30 seconds. It reports only when the sender or
-unread count changes, without reading message bodies. Use `收` when you want to
-read the messages; that is when they burn.
+## Real payments
 
-## Two-computer example
+Checkout happens on the payment provider's page or provider-generated QR surface. Screenshots and personal collection QR codes do not prove payment. Only a signed webhook or successful official merchant-API query creates a verified `ORDER_PAID` record. See [market/docs/REAL_PAYMENTS.md](market/docs/REAL_PAYMENTS.md).
 
-On computer A, start with:
+## Development
 
-```text
-$codexping 我叫大明。问小明在不在。
-```
-
-On computer B, start with:
-
-```text
-$codexping 我叫小明。看看有没有新消息，然后回复他：在的。
-```
-
-Both computers use the public relay by default. Identities are local, so use a
-different name on each computer.
-
-## Optional: run your own relay
-
-Most users can skip this section. Self-hosting requires a Cloudflare account
-and Node.js 22 or newer:
+Ping relay:
 
 ```bash
 npm install
-npx wrangler login
-npx wrangler deploy
+npm run deploy
 ```
 
-Wrangler prints the new server URL. The server owner sends that URL to every
-participant, and each participant installs it permanently:
-
-```powershell
-.\install.ps1 -Server https://your-worker.workers.dev
-```
-
-macOS or Linux:
+Market protocol:
 
 ```bash
-sh install.sh https://your-worker.workers.dev
+cd market
+npm install
+npm test
+npm run test:cli
 ```
 
-Both computers must use the same server URL. The installer saves it in
-`~/.codex-ping/config.json`, so it is not necessary to set it again. For a
-temporary override, use `CODEX_PING_BASE`:
+- [Decentralized protocol](market/docs/DECENTRALIZED_PROTOCOL.md)
+- [Product requirements](market/docs/PRD.md)
+- [Security](market/docs/SECURITY.md)
 
-```bash
-export CODEX_PING_BASE=https://your-worker.workers.dev
-```
+## Safety
 
-PowerShell:
-
-```powershell
-$env:CODEX_PING_BASE="https://your-worker.workers.dev"
-```
-
-## Privacy and behavior
-
-- `在线` means recently active, not a guaranteed live connection.
-- Reading burns messages from that recipient's inbox.
-- Listening reports unread sender counts without reading or burning messages.
-- Availability questions wait up to 2 minutes for a reply.
-- Unread messages are stored durably for up to 1 hour and survive Worker
-  restarts until they are read or expire.
-- Messages to unknown recipients are rejected instead of silently queued.
-- `大家你好` broadcasts `你好` to every other recently active identity.
-- The public relay is not end-to-end encrypted. Do not send secrets.
+- Public relay messages are not end-to-end encrypted. Do not send real secrets.
+- Never enter card numbers, payment passwords, wallet seed phrases, or identity documents in chat.
+- Buyers choose trusted compliance providers; no model or operator is universally neutral.
+- Merchant details may be unavailable while that merchant node is offline.
