@@ -6,7 +6,12 @@ Run the real two-process merchant/buyer check:
 
 ```bash
 npm run test:two-codex
+npm run test:realistic
+npm run test:cli
+npm run test:worker-cli
 ```
+
+`test:realistic` transfers the generated product image from the merchant node to an isolated buyer node and verifies its SHA-256 hash. `test:cli` repeats the flow only through the commands used by the Codex skill. `test:worker-cli` runs the same clean-computer flow through the actual Cloudflare Worker local runtime (Wrangler requires Node.js 22 or newer).
 
 一个面向 Codex/终端代理的公开交易索引。网页负责公开、可审计的数据；搜索、比较、询价和下单主要发生在 Codex 对话中。
 

@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { loadFeed, readContent } from "./peer-store.js";
+import { loadFeed, readAsset, readContent } from "./peer-store.js";
 
 function sendJson(response, value, status = 200) {
   response.writeHead(status, {
@@ -20,6 +20,17 @@ export async function startMerchantServer(home, { host = "127.0.0.1", port = 0 }
       const content = readContent(home, contentMatch[1]);
       if (content == null) return sendJson(response, { error: "content not found" }, 404);
       return sendJson(response, { content, contentHash: contentMatch[1] });
+    }
+    const assetMatch = url.pathname.match(/^\/asset\/([a-f0-9]{64})$/);
+    if (request.method === "GET" && assetMatch) {
+      const asset = readAsset(home, assetMatch[1]);
+      if (asset == null) return sendJson(response, { error: "asset not found" }, 404);
+      response.writeHead(200, {
+        "content-type": "application/octet-stream",
+        "content-length": asset.length,
+        "cache-control": "public, max-age=31536000, immutable",
+      });
+      return response.end(asset);
     }
     return sendJson(response, { error: "not found" }, 404);
   });

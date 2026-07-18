@@ -5,6 +5,7 @@ import {
   createSignedEvent,
   generateIdentity,
   hashContent,
+  sha256Hex,
 } from "./protocol.js";
 
 const jsonRead = (path, fallback) => (existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) : fallback);
@@ -13,6 +14,7 @@ const jsonWrite = (path, value) => writeFileSync(path, JSON.stringify(value, nul
 export function initPeerHome(home, label) {
   mkdirSync(home, { recursive: true });
   mkdirSync(join(home, "content"), { recursive: true });
+  mkdirSync(join(home, "assets"), { recursive: true });
   const identityPath = join(home, "identity.json");
   if (!existsSync(identityPath)) jsonWrite(identityPath, generateIdentity(label));
   if (!existsSync(join(home, "feed.json"))) jsonWrite(join(home, "feed.json"), []);
@@ -81,6 +83,17 @@ export function revokeListing(home, listingId, reason = "merchant-revoked") {
 
 export function readContent(home, contentHash) {
   return jsonRead(join(home, "content", `${contentHash}.json`), null);
+}
+
+export function storeAsset(home, bytes) {
+  const assetHash = sha256Hex(bytes);
+  writeFileSync(join(home, "assets", assetHash), bytes);
+  return assetHash;
+}
+
+export function readAsset(home, assetHash) {
+  const path = join(home, "assets", assetHash);
+  return existsSync(path) ? readFileSync(path) : null;
 }
 
 export function attestListing(providerHome, event, {

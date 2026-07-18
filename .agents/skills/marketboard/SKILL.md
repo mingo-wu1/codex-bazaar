@@ -7,6 +7,14 @@ description: Search, compare, buy, pay for, and track products on Codex Market B
 
 Locate `marketboard.py` in the repository root, then at `~/.codex-market-board/marketboard.py`. Use `python` on Windows and `python3` elsewhere.
 
+For decentralized protocol listings, locate `scripts/marketpeer.mjs` in the repository and use Node.js. Keep homes, hashes, provider IDs, and endpoint plumbing out of the conversation unless troubleshooting. Translate natural requests into these actions:
+
+- Merchant onboarding: initialize a merchant home once.
+- Publish: ensure the merchant node is running, then publish the name, price, image, description, and its reachable endpoint to the configured board.
+- Search: use the configured trusted compliance-provider ID, download details/images only for admitted results, and report that signature/hash verification succeeded.
+- Contact: use the verified `merchantContact` field; if it begins with `codexping:`, invoke Codex Ping to message that identity.
+- An offline merchant means details are temporarily unavailable; do not treat this as a nonexistent listing.
+
 Keep the conversation natural and concise. Never expose saved merchant or order tokens. The board is not end-to-end encrypted and must not receive payment credentials, identity documents, shipping addresses, or real secrets in chat.
 
 1. Set the buyer identity with `我叫<name>` when needed.

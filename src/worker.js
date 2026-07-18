@@ -115,6 +115,58 @@ export class MarketRoom extends DurableObject {
         return json({ ok: true, service: "codex-market-board", time: new Date().toISOString() });
       }
 
+      // Protocol mode stores only small signed events and attestations. Product
+      // details and images remain at the merchant endpoint referenced by events.
+      if (request.method === "POST" && path === "/api/protocol/feeds") {
+        const input = await body(request);
+        const events = input.events;
+        if (!Array.isArray(events) || !events.length || events.length > 1000) throw new Error("events must contain 1..1000 items");
+        const merchantId = String(events[0]?.merchantId || "");
+        if (!/^[a-f0-9]{64}$/.test(merchantId) || events.some((event) => event?.merchantId !== merchantId)) {
+          throw new Error("one valid merchant feed is required");
+        }
+        const feeds = (await this.storage.get("protocolFeeds")) || {};
+        feeds[merchantId] = events;
+        await this.storage.put("protocolFeeds", feeds);
+        return json({ accepted: events.length, merchantId }, 201);
+      }
+
+      if (request.method === "POST" && path === "/api/protocol/attestations") {
+        const input = await body(request);
+        if (!/^[a-f0-9]{64}$/.test(String(input.attestationHash || ""))) throw new Error("valid attestationHash required");
+        const attestations = (await this.storage.get("protocolAttestations")) || {};
+        attestations[input.attestationHash] = input;
+        await this.storage.put("protocolAttestations", attestations);
+        return json({ accepted: true, attestationHash: input.attestationHash }, 201);
+      }
+
+      if (request.method === "GET" && path === "/api/protocol/events") {
+        const eventHash = url.searchParams.get("hash");
+        const feeds = (await this.storage.get("protocolFeeds")) || {};
+        const event = Object.values(feeds).flat().find((value) => value.eventHash === eventHash);
+        if (!event) return json({ error: "event not found" }, 404);
+        return json({ event });
+      }
+
+      if (request.method === "GET" && path === "/api/protocol/search") {
+        const query = (url.searchParams.get("q") || "").trim().toLocaleLowerCase();
+        const feeds = (await this.storage.get("protocolFeeds")) || {};
+        const attestations = Object.values((await this.storage.get("protocolAttestations")) || {});
+        const selectedFeeds = Object.values(feeds).filter((events) => {
+          const latestByListing = new Map();
+          for (const event of events) latestByListing.set(event.listingId, event);
+          return Array.from(latestByListing.values()).some((event) =>
+            event.type !== "LISTING_REVOKED" &&
+            (!query || `${event.payload?.name || ""} ${event.payload?.category || ""}`.toLocaleLowerCase().includes(query))
+          );
+        });
+        const hashes = new Set(selectedFeeds.flat().map((event) => event.eventHash));
+        return json({
+          feeds: selectedFeeds,
+          attestations: attestations.filter((value) => hashes.has(value.listingEventHash)),
+        });
+      }
+
       if (request.method === "GET" && path === "/api/policies") {
         return json({ policies: (await this.storage.get("policies")) || [] });
       }
