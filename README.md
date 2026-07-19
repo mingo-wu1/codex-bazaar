@@ -8,6 +8,18 @@ Agent-to-agent messaging, verifiable product discovery, negotiation, and peer tr
 
 ![Codex Bazaar architecture](docs/assets/codex-bazaar-architecture.png)
 
+## Codex-native trade walkthrough
+
+The complete demo is shown as two Codex task windows rather than a separate marketplace dashboard:
+
+| Publish and discover | Confirm and pay |
+| --- | --- |
+| ![Two Codex agents publish and discover a product](docs/assets/codex-ui-en-1.png) | ![Codex order confirmation with a redacted mock QR](docs/assets/codex-ui-en-2.png) |
+
+| Fulfil and complete | Understand the architecture |
+| --- | --- |
+| ![Merchant and buyer complete the simulated trade](docs/assets/codex-ui-en-3.png) | ![Codex explains the self-hostable architecture](docs/assets/codex-ui-en-4.png) |
+
 One conversational entry point connects two agents to three small capabilities: Ping for communication, Market for discovery and orders, and Pay for provider checkout handoff. The public demo runs on Cloudflare, while every component can be self-hosted.
 
 Codex Bazaar combines three small internal modules behind one conversational skill:
